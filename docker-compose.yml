@@ -12,7 +12,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./portainer/data:/data
     environment:
-      - TZ=America/New_York
+      - TZ=America/Los_Angeles
 
   # Plex Media Server
   plex:
@@ -22,7 +22,7 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ=America/New_York
+      - TZ=America/Los_Angeles
       - VERSION=docker
     volumes:
       - ./plex/config:/config
@@ -36,7 +36,7 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ=America/New_York
+      - TZ=America/Los_Angeles
     volumes:
       - ./radarr/config:/config
       - ./media/movies:/movies
@@ -52,7 +52,7 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ=America/New_York
+      - TZ=America/Los_Angeles
     volumes:
       - ./sonarr/config:/config
       - ./media/tv:/tv
@@ -61,20 +61,36 @@ services:
       - "8989:8989"
     restart: unless-stopped
 
-  # qBittorrent for downloading
+  # Gluetun VPN container
+  gluetun:
+    image: qmcgaw/gluetun
+    container_name: gluetun
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - VPN_SERVICE_PROVIDER=expressvpn
+      - EXPRESSVPN_USERNAME=your_username
+      - EXPRESSVPN_PASSWORD=your_password
+      - TZ=America/Los_Angeles
+    ports:
+      - "8888:8888" # optional: Gluetun web UI
+    volumes:
+      - ./gluetun:/gluetun
+    restart: unless-stopped
+
+  # qBittorrent routed through Gluetun
   qbittorrent:
     image: lscr.io/linuxserver/qbittorrent:latest
     container_name: qbittorrent
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ=America/New_York
+      - TZ=America/Los_Angeles
       - WEBUI_PORT=8080
     volumes:
       - ./qbittorrent/config:/config
       - ./downloads:/downloads
-    ports:
-      - "8080:8080"
-      - "6881:6881"
-      - "6881:6881/udp"
+    network_mode: "service:gluetun"
+    depends_on:
+      - gluetun
     restart: unless-stopped
