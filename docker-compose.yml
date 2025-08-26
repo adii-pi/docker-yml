@@ -69,8 +69,8 @@ services:
       - NET_ADMIN
     environment:
       - VPN_SERVICE_PROVIDER=expressvpn
-      - EXPRESSVPN_USERNAME=your_username
-      - EXPRESSVPN_PASSWORD=your_password
+      - EXPRESSVPN_USERNAME=rj7rgf5o5u33u9csme75r9zj
+      - EXPRESSVPN_PASSWORD=4nh2cputf3rmw6msfldsuppe
       - TZ=America/Los_Angeles
     ports:
       - "8888:8888" # optional: Gluetun web UI
